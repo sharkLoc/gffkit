@@ -1,5 +1,5 @@
 [package]
-name = "noodles"
+name = "gffkit"
 version = "0.1.1"
 edition = "2021"
 authors = ["sharkLoc <mmtinfo@163.com>"]
