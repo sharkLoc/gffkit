@@ -1,5 +1,9 @@
-use bio::io::gff;
+use noodles_gff as gff;
+use gff::record::attributes::field::Value;
 use anyhow::Error;
+use std::io::BufReader;
+use std::fs::File;
+
 
 pub fn feature_select(
     gff: &str,
@@ -7,21 +11,39 @@ pub fn feature_select(
     key: &str,
     name: &str
 ) -> Result<(),Error>{
-    let mut reader = gff::Reader::from_file(gff, gff::GffType::GFF3)?;
+    let mut reader = File::open(gff)
+        .map(BufReader::new)
+        .map(gff::Reader::new)?;
+    let key_wrap = Value::from(name);
+
     for record in reader.records().flatten() {
         let rec = record.attributes();
         if let Some(ref types) = types {
-            if types == record.feature_type() {
+            if types == record.ty() {
                 if let Some(key) = rec.get(key) {
-                    if key == name {
-                        println!("{}\t{}\t{}\t{}\t{}\t{}",record.seqname(), record.feature_type(),record.start(),record.end(),record.strand().unwrap(),key);
+                    if key.eq(&key_wrap) {
+                        println!("{}\t{}\t{}\t{}\t{}\t{}",
+                            record.reference_sequence_name(),
+                            record.ty(),
+                            record.start(),
+                            record.end(),
+                            record.strand(),
+                            key
+                        );
                     }
                 }
             }
         } else {
             if let Some(key) = rec.get(key) {
-                if key == name {
-                    println!("{}\t{}\t{}\t{}\t{}\t{}",record.seqname(), record.feature_type(),record.start(),record.end(),record.strand().unwrap(),key);
+                if key.eq(&key_wrap) {
+                    println!("{}\t{}\t{}\t{}\t{}\t{}",
+                        record.reference_sequence_name(),
+                        record.ty(),
+                        record.start(),
+                        record.end(),
+                        record.strand(),
+                        key
+                    );
                 }
             }
         }
