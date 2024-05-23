@@ -1,6 +1,6 @@
 [package]
 name = "gffkit"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 authors = ["sharkLoc <mmtinfo@163.com>"]
 rust-version = "1.71.0"
@@ -14,9 +14,18 @@ license = "GPL-3.0"
 
 [dependencies]
 anyhow = "1.0.75"
-clap = { version = "4.3.21", features = ["derive"] }
+atty = "0.2.14"
+bio = "1.6.0"
+bzip2 = "0.4.4"
+chrono = "0.4.38"
+clap = { version = "4.5.4", features = ["derive", "wrap_help"] }
+env_logger = "0.10.0"
+flate2 = "1.0.30"
+human-sort = "0.2.2"
+log = "0.4.21"
+noodles = { version = "0.74.0", features = ["gff", "gtf"] }
 noodles-gff = "0.18.0"
+xz2 = "0.1.7"
 
 [profile.release]
-opt-level = 3
-lto = true
+strip = true
