@@ -3,8 +3,9 @@ use clap::{ArgAction, Parser};
 mod cmd;
 mod logger;
 use logger::*;
+mod error;
 mod utils;
-use cmd::query::feature_select;
+use cmd::{extract::extract_seq, query::feature_select};
 
 #[derive(Parser, Debug)]
 #[command(
@@ -52,8 +53,39 @@ struct Args {
 enum Subcli {
     /// query feature info from GFF3 file
     query {
-        /// read GFF from given file path
+        /// read GFF file from given path
         gff: Option<String>,
+        /// select feature type in gff file column 3; eg. gene,miRNA,exon
+        #[arg(short = 't', long = "type", value_name = "STR")]
+        types: Option<String>,
+        /// feature name in gff file, eg. Name, ID, gene
+        #[arg(short = 'k', long = "key", value_name = "STR")]
+        key: String,
+        /// value of the feature, eg. TP53, CYP2D6
+        #[arg(short = 'n', long = "name", value_name = "STR")]
+        name: String,
+        /// output file name or write to stdout, files ending in .gz/.bz2/.xz will be compressed automatically
+        #[arg(short, long, value_name = "FILE")]
+        out: Option<String>,
+    },
+    /// extract feature sequence from fasta file
+    #[command(
+        visible_alias = "extr",
+        before_help = "note: 
+    1. feature in strand - chain, output reverse-complement sequence
+    2. input indexed fasta, or run command with arg --faidx
+    3. show each region info in log when arg -vvvvv used"
+    )]
+    extract {
+        /// read gff file from given path
+        #[arg(short, long, value_name = "FILE")]
+        gff: String,
+        /// input genome.fa faidx needed, or use opt --faidx
+        #[arg(short, long, value_name = "FILE")]
+        fasta: String,
+        /// if set, create index for genome.fa when .fai not exists
+        #[arg(long, help_heading = Some("FLAGS"))]
+        faidx: bool,
         /// select feature type in gff file column 3; eg. gene,miRNA,exon
         #[arg(short = 't', long = "type", value_name = "STR")]
         types: Option<String>,
@@ -82,6 +114,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             out,
         } => {
             feature_select(gff, types, &key, &name, out)?;
+        }
+        Subcli::extract {
+            gff,
+            fasta,
+            faidx,
+            types,
+            key,
+            name,
+            out,
+        } => {
+            extract_seq(&fasta, faidx, &gff, types, &key, &name, out)?;
         }
     }
 

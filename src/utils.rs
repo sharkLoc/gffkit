@@ -6,6 +6,8 @@ use std::{
     path::Path,
 };
 
+use crate::error::GffError;
+
 const GZ_MAGIC: [u8; 3] = [0x1f, 0x8b, 0x08];
 const BZ_MAGIC: [u8; 3] = [0x42, 0x5a, 0x68];
 const XZ_MAGIC: [u8; 6] = [0xfd, 0x37, 0x7a, 0x58, 0x5A, 0x00];
@@ -88,7 +90,7 @@ where
         }
     } else {
         if atty::is(atty::Stream::Stdin) {
-            error!("stdin not detected");
+            error!("{}", GffError::StdinNotDetected);
             std::process::exit(1);
         }
         let fp = BufReader::new(io::stdin());

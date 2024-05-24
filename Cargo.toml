@@ -23,8 +23,8 @@ env_logger = "0.10.0"
 flate2 = "1.0.30"
 human-sort = "0.2.2"
 log = "0.4.21"
-noodles = { version = "0.74.0", features = ["gff", "gtf"] }
-noodles-gff = "0.18.0"
+noodles = { version = "0.74.0", features = ["gff", "gtf", "fasta","core"] }
+thiserror = "1.0.61"
 xz2 = "0.1.7"
 
 [profile.release]

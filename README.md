@@ -25,8 +25,9 @@ Source code: https://github.com/sharkLoc/gffkit.git
 Usage: gffkit [OPTIONS] <COMMAND>
 
 Commands:
-  query  query feature info from GFF3 file
-  help   Print this message or the help of the given subcommand(s)
+  query    query feature info from GFF3 file
+  extract  extract feature sequence from fasta file [aliases: extr]
+  help     Print this message or the help of the given subcommand(s)
 
 Global Arguments:
       --log <FILE>    if file name specified, write log message to this file, or write to stderr

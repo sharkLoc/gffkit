@@ -21,10 +21,8 @@ pub fn logger<P: AsRef<Path>>(
         LevelFilter::Info
     } else if verbose == 4 {
         LevelFilter::Debug
-    } else if verbose == 5 {
-        LevelFilter::Trace
     } else {
-        LevelFilter::Off
+        LevelFilter::Trace
     };
     if quiet {
         level = LevelFilter::Off;
