@@ -8,6 +8,7 @@ use noodles::{
     fasta::{self, fai, indexed_reader, record, Record},
     gff::{self, record::attributes::field::Value},
 };
+use std::collections::HashMap;
 use std::error::Error;
 use std::time::Instant;
 
@@ -43,6 +44,41 @@ pub fn extract_seq(
         .map_err(GffError::FaidxNotExists)?;
     let mut fo = file_writer(out.as_ref(), 6u32).map(fasta::Writer::new)?;
 
+    let maps = HashMap::from([
+        (b'A', b'T'),
+        (b'T', b'A'),
+        (b'G', b'C'),
+        (b'C', b'G'),
+        (b'N', b'N'),
+        (b'U', b'A'),
+        (b'W', b'W'),
+        (b'S', b'S'),
+        (b'M', b'K'),
+        (b'K', b'M'),
+        (b'R', b'Y'),
+        (b'Y', b'R'),
+        (b'B', b'V'),
+        (b'V', b'B'),
+        (b'D', b'H'),
+        (b'H', b'D'),
+        (b'a', b't'),
+        (b't', b'a'),
+        (b'g', b'c'),
+        (b'c', b'g'),
+        (b'n', b'n'),
+        (b'u', b'a'),
+        (b'w', b'w'),
+        (b's', b's'),
+        (b'm', b'k'),
+        (b'k', b'm'),
+        (b'r', b'y'),
+        (b'y', b'r'),
+        (b'b', b'v'),
+        (b'v', b'b'),
+        (b'd', b'h'),
+        (b'h', b'd'),
+    ]);
+
     let key_wrap = Value::from(name);
     for record in reader.records().flatten() {
         let rec = record.attributes();
@@ -76,12 +112,21 @@ pub fn extract_seq(
                             ),
                         );
                         let seq = if record.strand().as_ref() == "-" {
+                            let comp: Vec<&u8> = rec_new
+                                .sequence()
+                                .as_ref()
+                                .iter()
+                                .map(|x| maps.get(x).unwrap_or(&b'N'))
+                                .collect::<Vec<&u8>>();
+                            let rev_comp: Vec<u8> = comp.iter().map(|x| **x).collect::<Vec<u8>>();
+                            let seqrc = record::Sequence::from(rev_comp);
                             // complement: report an error when lowercase base in fasta
-                            let seqrc = rec_new
+                            /*let seqrc = rec_new
                                 .sequence()
                                 .complement()
                                 .rev()
                                 .collect::<Result<_, _>>()?;
+                            Record::new(des, seqrc)*/
                             Record::new(des, seqrc)
                         } else {
                             Record::new(des, rec_new.sequence().clone())
@@ -118,11 +163,21 @@ pub fn extract_seq(
                     ),
                 );
                 let seq = if record.strand().as_ref() == "-" {
+                    let comp: Vec<&u8> = rec_new
+                        .sequence()
+                        .as_ref()
+                        .iter()
+                        .map(|x| maps.get(x).unwrap_or(&b'N'))
+                        .collect::<Vec<&u8>>();
+                    let rev_comp: Vec<u8> = comp.iter().map(|x| **x).collect::<Vec<u8>>();
+                    let seqrc = record::Sequence::from(rev_comp);
+                    /*
                     let seqrc = rec_new
                         .sequence()
                         .complement()
                         .rev()
                         .collect::<Result<_, _>>()?;
+                    */
                     Record::new(des, seqrc)
                 } else {
                     Record::new(des, rec_new.sequence().clone())
